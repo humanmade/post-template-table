@@ -1,0 +1,22 @@
+/**
+ * Frontend styles for the block.
+ */
+
+.wp-block-hm-post-template-table {
+	width: 100%;
+
+	&__table {
+		width: 100%;
+		border-collapse: collapse;
+
+		&:where(th, td) {
+			text-align: left;
+			width: min-content;
+
+			&:empty {
+				width: 0;
+				border: 0;
+			}
+		}
+	}
+}

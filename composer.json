@@ -1,0 +1,15 @@
+{
+    "name": "humanmade/post-template-table",
+    "description": "A post template like block to output posts as a table",
+    "type": "wordpress-plugin",
+    "require": {
+        "composer/installers": "^1 || ^2"
+    },
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Human Made Limited",
+            "email": "engineering@humanmade.com"
+        }
+    ]
+}
