@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       HM Post Template Table
  * Description:       A table-based alternative to the core/post-template block for displaying query results.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Human Made

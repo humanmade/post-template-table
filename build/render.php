@@ -97,7 +97,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 			?>
 			<?php if ( ! $query_loop->have_posts() ) : ?>
 				<tr>
-					<td colspan="<?php count( $inner_blocks ); ?>"><?php esc_html_e( 'No results found', 'hm-post-template-table' ); ?></td>
+					<td colspan="<?php echo count( $inner_blocks ); ?>"><?php esc_html_e( 'No results found', 'hm-post-template-table' ); ?></td>
 				</tr>
 			<?php endif; ?>
 		</tbody>
