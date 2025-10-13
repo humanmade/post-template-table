@@ -57,6 +57,18 @@
 					},
 					"index": {
 						"type": "number"
+					},
+					"width": {
+						"type": "string"
+					},
+					"unit": {
+						"type": "string"
+					},
+					"minWidth": {
+						"type": "string"
+					},
+					"minUnit": {
+						"type": "string"
 					}
 				}
 			}
@@ -64,10 +76,6 @@
 		"showHeader": {
 			"type": "boolean",
 			"default": true
-		},
-		"columnWidths": {
-			"type": "object",
-			"default": {}
 		}
 	}
 }

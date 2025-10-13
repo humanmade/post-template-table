@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       HM Post Template Table
  * Description:       A table-based alternative to the core/post-template block for displaying query results.
- * Version:           1.0.3
+ * Version:           1.0.4
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Human Made
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
-define( 'HM_POST_TEMPLATE_TABLE_VERSION', '1.0.3' );
+define( 'HM_POST_TEMPLATE_TABLE_VERSION', '1.0.4' );
 define( 'HM_POST_TEMPLATE_TABLE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HM_POST_TEMPLATE_TABLE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
@@ -96,32 +96,28 @@ function get_column_classes( WP_Block $block ) : string {
 /**
  * Get column width styles.
  *
- * @param array $column_widths All column widths.
- * @param int   $column_index Column index.
+ * @param array $column Column configuration array.
  * @return string Style attribute string.
  */
-function get_column_width_style( $column_widths, $column_index ) {
-	if ( empty( $column_widths[ $column_index ] ) ) {
+function get_column_width_style( $column ) {
+	if ( empty( $column['width'] ) ) {
 		return '';
 	}
 
-	$width_config = $column_widths[ $column_index ];
 	$styles = [];
 
 	// Fixed units that don't need a separate min-width.
 	$fixed_units = [ 'px', 'em', 'rem' ];
 
-	if ( ! empty( $width_config['width'] ) ) {
-		$is_fixed_unit = isset( $width_config['unit'] ) && in_array( $width_config['unit'], $fixed_units, true );
+	$is_fixed_unit = isset( $column['unit'] ) && in_array( $column['unit'], $fixed_units, true );
 
-		if ( $is_fixed_unit ) {
-			$styles[] = 'width: ' . esc_attr( $width_config['width'] );
-			$styles[] = 'min-width: ' . esc_attr( $width_config['width'] );
-		} else {
-			$styles[] = 'width: ' . esc_attr( $width_config['width'] );
-			if ( ! empty( $width_config['minWidth'] ) ) {
-				$styles[] = 'min-width: ' . esc_attr( $width_config['minWidth'] );
-			}
+	if ( $is_fixed_unit ) {
+		$styles[] = 'width: ' . esc_attr( $column['width'] );
+		$styles[] = 'min-width: ' . esc_attr( $column['width'] );
+	} else {
+		$styles[] = 'width: ' . esc_attr( $column['width'] );
+		if ( ! empty( $column['minWidth'] ) ) {
+			$styles[] = 'min-width: ' . esc_attr( $column['minWidth'] );
 		}
 	}
 
