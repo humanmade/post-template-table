@@ -19,6 +19,9 @@ $columns       = isset( $attributes['columns'] ) ? $attributes['columns'] : [];
 $class_name    = isset( $attributes['className'] ) ? $attributes['className'] : '';
 $column_widths = isset( $attributes['columnWidths'] ) ? $attributes['columnWidths'] : [];
 
+// Fixed units that don't need a separate min-width.
+$fixed_units = [ 'px', 'em', 'rem' ];
+
 // Get the query context
 $query_id = $block->context['queryId'] ?? 0;
 $query    = $block->context['query'] ?? [];
@@ -53,7 +56,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 				<tr>
 					<?php foreach ( $inner_blocks as $i => $inner_block ) : ?>
 						<?php
-						$style_attr = get_column_width_style( $column_widths, $i );
+						$style_attr = get_column_width_style( $column_widths, $i, $fixed_units );
 						?>
 						<th class="<?php echo get_column_classes( $inner_block ); ?>"<?php echo $style_attr; ?>><?php
 							echo esc_html( $columns[ $i ]['label'] ?? $inner_block->block_type->title ?? '' );
@@ -78,9 +81,9 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 				// Create a counter to track which column we're rendering.
 				$column_index = 0;
 
-				$filter_block_container = static function ( $block_content, $block, $block_instance ) use ( $column_widths, &$column_index ) {
-					if ( strpos( $block_content, '<td' ) !== 0 ) {
-						$style_attr = get_column_width_style( $column_widths, $column_index );
+				$filter_block_container = static function ( $block_content, $block, $block_instance ) use ( $column_widths, $fixed_units, &$column_index ) {
+					if ( strpos( $block_content, '<td>' ) !== 0 ) {
+						$style_attr = get_column_width_style( $column_widths, $column_index, $fixed_units );
 						$column_index++;
 
 						if ( $style_attr ) {
