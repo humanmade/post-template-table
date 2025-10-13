@@ -64,6 +64,10 @@
 		"showHeader": {
 			"type": "boolean",
 			"default": true
+		},
+		"columnWidths": {
+			"type": "object",
+			"default": {}
 		}
 	}
 }

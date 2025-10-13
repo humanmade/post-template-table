@@ -14,9 +14,10 @@ namespace HM\PostTemplateTable;
 
 use WP_Query;
 
-$show_header = isset( $attributes['showHeader'] ) ? $attributes['showHeader'] : true;
-$columns     = isset( $attributes['columns'] ) ? $attributes['columns'] : [];
-$class_name  = isset( $attributes['className'] ) ? $attributes['className'] : '';
+$show_header   = isset( $attributes['showHeader'] ) ? $attributes['showHeader'] : true;
+$columns       = isset( $attributes['columns'] ) ? $attributes['columns'] : [];
+$class_name    = isset( $attributes['className'] ) ? $attributes['className'] : '';
+$column_widths = isset( $attributes['columnWidths'] ) ? $attributes['columnWidths'] : [];
 
 // Get the query context
 $query_id = $block->context['queryId'] ?? 0;
@@ -51,7 +52,10 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 			<thead>
 				<tr>
 					<?php foreach ( $inner_blocks as $i => $inner_block ) : ?>
-						<th class="<?php echo get_column_classes( $inner_block ); ?>"><?php
+						<?php
+						$style_attr = get_column_width_style( $column_widths, $i );
+						?>
+						<th class="<?php echo get_column_classes( $inner_block ); ?>"<?php echo $style_attr; ?>><?php
 							echo esc_html( $columns[ $i ]['label'] ?? $inner_block->block_type->title ?? '' );
 							?></th>
 					<?php endforeach; ?>
@@ -71,8 +75,17 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 					return $context;
 				};
 
-				$filter_block_container = static function ( $block_content, $block, $block_instance ) {
-					if ( strpos( $block_content, '<td>' ) !== 0 ) {
+				// Create a counter to track which column we're rendering.
+				$column_index = 0;
+
+				$filter_block_container = static function ( $block_content, $block, $block_instance ) use ( $column_widths, &$column_index ) {
+					if ( strpos( $block_content, '<td' ) !== 0 ) {
+						$style_attr = get_column_width_style( $column_widths, $column_index );
+						$column_index++;
+
+						if ( $style_attr ) {
+							return sprintf( '<td%s>%s</td>', $style_attr, $block_content );
+						}
 						return sprintf( '<td>%s</td>', $block_content );
 					}
 					return $block_content;

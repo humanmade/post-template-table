@@ -92,3 +92,38 @@ function get_column_classes( WP_Block $block ) : string {
 
 	return implode( ' ', $classes );
 }
+
+/**
+ * Get column width styles.
+ *
+ * @param array $column_widths All column widths.
+ * @param int   $column_index Column index.
+ * @return string Style attribute string.
+ */
+function get_column_width_style( $column_widths, $column_index ) {
+	if ( empty( $column_widths[ $column_index ] ) ) {
+		return '';
+	}
+
+	$width_config = $column_widths[ $column_index ];
+	$styles = [];
+
+	// Fixed units that don't need a separate min-width.
+	$fixed_units = [ 'px', 'em', 'rem' ];
+
+	if ( ! empty( $width_config['width'] ) ) {
+		$is_fixed_unit = isset( $width_config['unit'] ) && in_array( $width_config['unit'], $fixed_units, true );
+
+		if ( $is_fixed_unit ) {
+			$styles[] = 'width: ' . esc_attr( $width_config['width'] );
+			$styles[] = 'min-width: ' . esc_attr( $width_config['width'] );
+		} else {
+			$styles[] = 'width: ' . esc_attr( $width_config['width'] );
+			if ( ! empty( $width_config['minWidth'] ) ) {
+				$styles[] = 'min-width: ' . esc_attr( $width_config['minWidth'] );
+			}
+		}
+	}
+
+	return ! empty( $styles ) ? ' style="' . implode( '; ', $styles ) . '"' : '';
+}

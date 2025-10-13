@@ -11,6 +11,8 @@ import {
 	PanelBody,
 	ToggleControl,
 	Spinner,
+	Button,
+	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
@@ -18,6 +20,9 @@ import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+
+// Fixed units that don't need a separate min-width.
+const FIXED_UNITS = [ 'px', 'em', 'rem' ];
 
 /**
  * Edit component for the hm-post-template-table block.
@@ -30,15 +35,15 @@ import { __ } from '@wordpress/i18n';
  * @returns {Element} The edit interface for the block.
  */
 export default function Edit( { attributes, setAttributes, clientId, context } ) {
-	const { columns, showHeader } = attributes;
+	const { columns, showHeader, columnWidths = {} } = attributes;
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-table',
 	} );
 
-	const { innerBlocks, posts, isResolving } = useSelect(
+	const { innerBlocks, posts, isResolving, units } = useSelect(
 		select => {
-			const { getBlocks } = select( blockEditorStore );
+			const { getBlocks, getSettings } = select( blockEditorStore );
 			const { getEntityRecords } = select( coreStore );
 			const query = context?.query || {};
 			const postType = query?.postType || 'post';
@@ -46,6 +51,8 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 
 			// Ensure boolean value.
 			query.sticky = Boolean( query.sticky );
+
+			const settings = getSettings();
 
 			return {
 				innerBlocks: getBlocks( clientId ),
@@ -61,6 +68,7 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 						...query,
 					},
 				] ),
+				units: settings?.__experimentalFeatures?.spacing?.units || [ 'px', 'em', 'rem', 'vh', 'vw', '%' ],
 			};
 		},
 		[ clientId, context ]
@@ -98,6 +106,34 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 		}
 	}, [ columns, innerBlocks, setAttributes ] );
 
+	// Sync columnWidths when columns are reordered
+	useEffect( () => {
+		const newColumnWidths = {};
+		let hasChanges = false;
+
+		innerBlocks.forEach( ( block, index ) => {
+			// Find the old column info
+			const column = columns.find( col => col.clientId === block.clientId );
+			if ( column && column.index !== undefined ) {
+				// If this block had width settings at its old index, move them to the new index
+				const oldIndex = column.index;
+				if ( columnWidths[ oldIndex ] ) {
+					newColumnWidths[ index ] = columnWidths[ oldIndex ];
+					if ( oldIndex !== index ) {
+						hasChanges = true;
+					}
+				}
+			} else if ( columnWidths[ index ] ) {
+				// Keep existing width at this index
+				newColumnWidths[ index ] = columnWidths[ index ];
+			}
+		} );
+
+		if ( hasChanges && JSON.stringify( columnWidths ) !== JSON.stringify( newColumnWidths ) ) {
+			setAttributes( { columnWidths: newColumnWidths } );
+		}
+	}, [ columns, innerBlocks, columnWidths, setAttributes ] );
+
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
 		{
@@ -120,6 +156,85 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 						onChange={ value => setAttributes( { showHeader: value } ) }
 					/>
 				</PanelBody>
+				<PanelBody title={ __( 'Column Widths', 'hm-post-template-table' ) } initialOpen={ false }>
+					{ innerBlocks.map( ( innerBlock, index ) => {
+						const column = columns.find( col => col.clientId === innerBlock.clientId );
+						const columnLabel = column?.label || getBlockType( innerBlock.name )?.title || `Column ${ index + 1 }`;
+						const widthConfig = columnWidths[ index ] || {};
+						const currentUnit = widthConfig.unit || '%';
+						const isFixedUnit = FIXED_UNITS.includes( currentUnit );
+
+						return (
+							<div key={ innerBlock.clientId } style={ { marginBottom: '1rem' } }>
+								<div style={ { marginBottom: '0.5rem', fontWeight: 500 } }>
+									{ columnLabel }
+								</div>
+								<UnitControl
+									label={ __( 'Width', 'hm-post-template-table' ) }
+									value={ widthConfig.width || '' }
+									units={ units.map( unit => ( { value: unit, label: unit } ) ) }
+									onChange={ value => {
+										const parsedValue = parseFloat( value );
+										const unit = value ? value.replace( parsedValue.toString(), '' ) : '%';
+										const newWidthConfig = {
+											width: value,
+											unit,
+										};
+
+										// If switching to a fixed unit, clear min-width
+										if ( FIXED_UNITS.includes( unit ) && widthConfig.minWidth ) {
+											delete newWidthConfig.minWidth;
+										}
+
+										setAttributes( {
+											columnWidths: {
+												...columnWidths,
+												[ index ]: newWidthConfig,
+											},
+										} );
+									} }
+								/>
+								{ ! isFixedUnit && widthConfig.width && (
+									<UnitControl
+										label={ __( 'Minimum Width', 'hm-post-template-table' ) }
+										value={ widthConfig.minWidth || '' }
+										units={ units.map( unit => ( { value: unit, label: unit } ) ) }
+										onChange={ value => {
+											const parsedValue = parseFloat( value );
+											const unit = value ? value.replace( parsedValue.toString(), '' ) : 'px';
+
+											setAttributes( {
+												columnWidths: {
+													...columnWidths,
+													[ index ]: {
+														...widthConfig,
+														minWidth: value,
+														minUnit: unit,
+													},
+												},
+											} );
+										} }
+									/>
+								) }
+								{ innerBlocks.length > 1 && (
+									<Button
+										isDestructive
+										size="small"
+										variant="secondary"
+										onClick={ () => {
+											const newColumnWidths = { ...columnWidths };
+											delete newColumnWidths[ index ];
+											setAttributes( { columnWidths: newColumnWidths } );
+										} }
+										style={ { marginTop: '0.5rem' } }
+									>
+										{ __( 'Reset Width', 'hm-post-template-table' ) }
+									</Button>
+								) }
+							</div>
+						);
+					} ) }
+				</PanelBody>
 			</InspectorControls>
 
 			<div { ...blockProps }>
@@ -133,14 +248,31 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 						{ showHeader && (
 							<thead>
 								<tr>
-									{ innerBlocks.map( innerBlock => {
+									{ innerBlocks.map( ( innerBlock, index ) => {
 										const align = innerBlock.attributes?.textAlign || innerBlock.attributes?.align || 'left';
 										const column = columns.find( col => col.clientId === innerBlock.clientId );
 										const columnLabel = column ? column.label : ( getBlockType( innerBlock.name )?.title || '' );
+										const widthConfig = columnWidths[ index ] || {};
+										const isFixedUnit = FIXED_UNITS.includes( widthConfig.unit );
+
+										const style = {};
+										if ( widthConfig.width ) {
+											if ( isFixedUnit ) {
+												style.width = widthConfig.width;
+												style.minWidth = widthConfig.width;
+											} else {
+												style.width = widthConfig.width;
+												if ( widthConfig.minWidth ) {
+													style.minWidth = widthConfig.minWidth;
+												}
+											}
+										}
+
 										return (
 											<th
 												key={ innerBlock.clientId }
 												className={ `wp-block-hm-post-template-table__column wp-block-hm-post-template-table__column--${ innerBlock.name.replace( '/', '-' ) } has-text-align-${ align }` }
+												style={ style }
 											>
 												<RichText
 													placeholder="&hellip;"
@@ -200,8 +332,27 @@ const withTableCellWrapper = createHigherOrderComponent( BlockListBlock => {
 
 		// Check if immediate parent is our table block.
 		if ( parentBlock?.name === 'hm/post-template-table' ) {
+			const columnWidths = parentBlock.attributes?.columnWidths || {};
+			// Find the index of this block within the parent's inner blocks
+			const blockIndex = parentBlock.innerBlocks?.findIndex( block => block.clientId === props.clientId ) ?? -1;
+			const widthConfig = blockIndex >= 0 ? ( columnWidths[ blockIndex ] || {} ) : {};
+			const isFixedUnit = FIXED_UNITS.includes( widthConfig.unit );
+
+			const style = {};
+			if ( widthConfig.width ) {
+				if ( isFixedUnit ) {
+					style.width = widthConfig.width;
+					style.minWidth = widthConfig.width;
+				} else {
+					style.width = widthConfig.width;
+					if ( widthConfig.minWidth ) {
+						style.minWidth = widthConfig.minWidth;
+					}
+				}
+			}
+
 			return (
-				<td>
+				<td style={ style }>
 					<BlockListBlock { ...props } />
 				</td>
 			);
