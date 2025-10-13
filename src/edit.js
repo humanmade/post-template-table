@@ -32,7 +32,9 @@ import { __ } from '@wordpress/i18n';
 export default function Edit( { attributes, setAttributes, clientId, context } ) {
 	const { columns, showHeader } = attributes;
 
-	const blockProps = useBlockProps();
+	const blockProps = useBlockProps( {
+		className: 'wp-block-table',
+	} );
 
 	const { innerBlocks, posts, isResolving } = useSelect(
 		select => {
@@ -127,7 +129,7 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 					</div>
 				) }
 				{ ! isResolving && (
-					<table className="wp-block-hm-post-template-table__table wp-block-table">
+					<table className="wp-block-hm-post-template-table__table">
 						{ showHeader && (
 							<thead>
 								<tr>

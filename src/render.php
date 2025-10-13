@@ -29,7 +29,7 @@ $query['paged'] = $page;
 $query_args = build_query_vars_from_query_block( $block, $page );
 $query_loop = new WP_Query( $query_args );
 
-$wrapper_attributes = get_block_wrapper_attributes();
+$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'wp-block-table' ] );
 $inner_blocks = $block->inner_blocks;
 
 // Get an instance of the current Post Template block.
@@ -46,7 +46,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 ?>
 
 <div <?php echo $wrapper_attributes; ?>>
-	<table class="wp-block-hm-post-template-table__table wp-block-table">
+	<table class="wp-block-hm-post-template-table__table">
 		<?php if ( $show_header && ! empty( $columns ) ) : ?>
 			<thead>
 				<tr>
