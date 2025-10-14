@@ -83,11 +83,12 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 						$column = $columns[ $column_index ] ?? [];
 						$style_attr = get_column_width_style( $column );
 						$column_index++;
+						$column_label = $column['label'] ?? $block_instance->block_type->title ?? '';
 
 						if ( $style_attr ) {
-							return sprintf( '<td%s>%s</td>', $style_attr, $block_content );
+							return sprintf( '<td%s data-column="%s">%s</td>', $style_attr, esc_attr( $column_label ), $block_content );
 						}
-						return sprintf( '<td>%s</td>', $block_content );
+						return sprintf( '<td data-column="%s">%s</td>', esc_attr( $column_label ), $block_content );
 					}
 					return $block_content;
 				};
