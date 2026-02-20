@@ -26,8 +26,13 @@ $page     = empty( $_GET['query-' . $query_id . '-page'] ) ? 1 : (int) $_GET['qu
 // Build the query arguments
 $query['paged'] = $page;
 
-$query_args = build_query_vars_from_query_block( $block, $page );
-$query_loop = new WP_Query( $query_args );
+if ( isset( $query['inherit'] ) && $query['inherit'] ) {
+	global $wp_query;
+	$query_loop = $wp_query;
+} else {
+	$query_args = build_query_vars_from_query_block( $block, $page );
+	$query_loop = new WP_Query( $query_args );
+}
 
 $wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'wp-block-table' ] );
 $inner_blocks = $block->inner_blocks;
