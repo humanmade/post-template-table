@@ -10,6 +10,7 @@
  * @package hm-post-template-table
  */
 
+// phpcs:ignore HM.Files.NamespaceDirectoryName.NoIncDirectory
 namespace HM\PostTemplateTable;
 
 use WP_Query;
