@@ -61,7 +61,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 						$column = $columns[ $i ] ?? [];
 						$style_attr = get_column_width_style( $column );
 						?>
-						<th class="<?php echo get_column_classes( $inner_block ); ?>" style="<?php echo esc_attr( $style_attr ); ?>">
+						<th class="<?php echo esc_attr( get_column_classes( $inner_block ) ); ?>" style="<?php echo esc_attr( $style_attr ); ?>">
 						<?php
 							echo esc_html( $column['label'] ?? $inner_block->block_type->title ?? '' );
 						?>
