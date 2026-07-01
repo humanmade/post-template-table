@@ -60,6 +60,23 @@ The block must be used as a child of `core/query` (Query Loop block). It renders
 - PHP 7.4 or higher
 - Node.js for development
 
+## Local Environment
+
+This project uses [wp-env](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/) to run a lightweight, containerized WordPress instance at [localhost:3004](http://localhost:3004) for testing purposes. The default username for the localhost environment is `admin`, with the password `password`.
+
+These commands can be used to interact with the environment:
+
+Command | Purpose
+---- | ----
+`npm run env:start` | Start the local environment at http://localhost:3004
+`npm run env:stop` | Turn off the local environment
+`npm run env:cli -- wp ...` | Run WP-CLI commands within the environment
+`npm run env:logs` | Open (and tail) the error logs for the application<sup>&ddagger;</sup>
+`npm run env:db` | Open the database in the mysql command line
+`npm run env:destroy` | Fully destroy the local environment (deletes container database)
+
+<sup>&ddagger;</sup> This command deliberately filters out GET/OPTIONS/HEAD/POST/PUT access log entries
+
 ## License
 
 GPL-2.0-or-later
