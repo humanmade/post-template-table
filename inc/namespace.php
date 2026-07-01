@@ -61,7 +61,7 @@ function register_block_pattern() {
  * @param WP_Block $block The inner block for the column.
  * @return string
  */
-function get_column_classes( WP_Block $block ) : string {
+function get_column_classes( WP_Block $block ): string {
 	$classes = [ 'wp-block-hm-post-template-table__column' ];
 	$attributes = $block->parsed_block['attrs'];
 

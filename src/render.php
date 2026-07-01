@@ -21,7 +21,7 @@ $class_name  = isset( $attributes['className'] ) ? $attributes['className'] : ''
 // Get the query context
 $query_id = $block->context['queryId'] ?? 0;
 $query    = $block->context['query'] ?? [];
-$page     = empty( $_GET['query-' . $query_id . '-page'] ) ? 1 : (int) $_GET['query-' . $query_id . '-page'];
+$page     = empty( $_GET[ 'query-' . $query_id . '-page' ] ) ? 1 : (int) $_GET[ 'query-' . $query_id . '-page' ];
 
 // Build the query arguments
 $query['paged'] = $page;
@@ -60,9 +60,11 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 						$column = $columns[ $i ] ?? [];
 						$style_attr = get_column_width_style( $column );
 						?>
-						<th class="<?php echo get_column_classes( $inner_block ); ?>"<?php echo $style_attr; ?>><?php
+						<th class="<?php echo get_column_classes( $inner_block ); ?>"<?php echo $style_attr; ?>>
+						<?php
 							echo esc_html( $column['label'] ?? $inner_block->block_type->title ?? '' );
-							?></th>
+						?>
+							</th>
 					<?php endforeach; ?>
 				</tr>
 			</thead>
@@ -87,7 +89,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 					if ( strpos( $block_content, '<td' ) !== 0 ) {
 						$column = $columns[ $column_index ] ?? [];
 						$style_attr = get_column_width_style( $column );
-						$column_index++;
+						++$column_index;
 						$column_label = $column['label'] ?? $block_instance->block_type->title ?? '';
 
 						if ( $style_attr ) {
@@ -109,7 +111,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 						echo ( new \WP_Block( $block_instance ) )->render( [ 'dynamic' => false ] );
 					?>
 				</tr>
-			<?php
+				<?php
 				remove_filter( 'render_block_context', $filter_block_context, 1 );
 				remove_filter( 'render_block', $filter_block_container, 1 );
 				endwhile;
