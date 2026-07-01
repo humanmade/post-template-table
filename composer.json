@@ -15,6 +15,9 @@
     "require-dev": {
         "humanmade/coding-standards": "^2.3"
     },
+    "scripts": {
+      "phpcs": "phpcs --standard=HM ."
+    },
     "config": {
         "allow-plugins": {
             "composer/installers": true,
