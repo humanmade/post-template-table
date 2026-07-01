@@ -13,6 +13,7 @@
 // phpcs:ignore HM.Files.NamespaceDirectoryName.NoIncDirectory
 namespace HM\PostTemplateTable;
 
+use WP_Block;
 use WP_Query;
 
 $show_header = isset( $attributes['showHeader'] ) ? $attributes['showHeader'] : true;
@@ -108,7 +109,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 					<?php
 						// Render the inner blocks of the Post Template block with `dynamic` set to `false` to prevent calling
 						// `render_callback` and ensure that no wrapper markup is included.
-						echo ( new \WP_Block( $block_instance ) )->render( [ 'dynamic' => false ] );
+						echo ( new WP_Block( $block_instance ) )->render( [ 'dynamic' => false ] );
 					?>
 				</tr>
 				<?php
