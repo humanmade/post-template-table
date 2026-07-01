@@ -16,7 +16,7 @@
         "humanmade/coding-standards": "^2.3"
     },
     "scripts": {
-      "phpcs": "phpcs --standard=HM ."
+      "phpcs": "phpcs --standard=HM -s ."
     },
     "config": {
         "allow-plugins": {
