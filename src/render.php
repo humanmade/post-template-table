@@ -19,12 +19,12 @@ $show_header = isset( $attributes['showHeader'] ) ? $attributes['showHeader'] : 
 $columns     = isset( $attributes['columns'] ) ? $attributes['columns'] : [];
 $class_name  = isset( $attributes['className'] ) ? $attributes['className'] : '';
 
-// Get the query context
+// Get the query context.
 $query_id = $block->context['queryId'] ?? 0;
 $query    = $block->context['query'] ?? [];
 $page     = empty( $_GET[ 'query-' . $query_id . '-page' ] ) ? 1 : (int) $_GET[ 'query-' . $query_id . '-page' ];
 
-// Build the query arguments
+// Build the query arguments.
 $query['paged'] = $page;
 
 if ( isset( $query['inherit'] ) && $query['inherit'] ) {
