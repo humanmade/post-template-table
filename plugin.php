@@ -20,9 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
-define( 'HM_POST_TEMPLATE_TABLE_VERSION', '1.0.5' );
-define( 'HM_POST_TEMPLATE_TABLE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'HM_POST_TEMPLATE_TABLE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+const HM_POST_TEMPLATE_TABLE_VERSION = '1.0.5';
+const HM_POST_TEMPLATE_TABLE_PLUGIN_DIR = __DIR__;
 
 require_once __DIR__ . '/inc/namespace.php';
 
