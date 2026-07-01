@@ -79,12 +79,12 @@ function get_column_classes( WP_Block $block ): string {
 }
 
 /**
- * Get column width styles.
+ * Render the style attribute for column width styles, or do nothing if no set widths.
  *
  * @param array $column Column configuration array.
  * @return string Style attribute string.
  */
-function get_column_width_style( $column ) {
+function get_column_width_style( $column ): string {
 	if ( empty( $column['width'] ) ) {
 		return '';
 	}
@@ -106,5 +106,9 @@ function get_column_width_style( $column ) {
 		}
 	}
 
-	return ! empty( $styles ) ? ' style="' . implode( '; ', $styles ) . '"' : '';
+	if ( empty( $styles ) ) {
+		return '';
+	}
+
+	return implode( '; ', $styles );
 }

@@ -61,11 +61,11 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 						$column = $columns[ $i ] ?? [];
 						$style_attr = get_column_width_style( $column );
 						?>
-						<th class="<?php echo get_column_classes( $inner_block ); ?>"<?php echo $style_attr; ?>>
+						<th class="<?php echo get_column_classes( $inner_block ); ?>" style="<?php echo esc_attr( $style_attr ); ?>">
 						<?php
 							echo esc_html( $column['label'] ?? $inner_block->block_type->title ?? '' );
 						?>
-							</th>
+						</th>
 					<?php endforeach; ?>
 				</tr>
 			</thead>
@@ -94,7 +94,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 						$column_label = $column['label'] ?? $block_instance->block_type->title ?? '';
 
 						if ( $style_attr ) {
-							return sprintf( '<td%s data-column="%s">%s</td>', $style_attr, esc_attr( $column_label ), $block_content );
+							return sprintf( '<td style="%s" data-column="%s">%s</td>', esc_attr( $style_attr ), esc_attr( $column_label ), $block_content );
 						}
 						return sprintf( '<td data-column="%s">%s</td>', esc_attr( $column_label ), $block_content );
 					}
