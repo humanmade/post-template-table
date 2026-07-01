@@ -19,7 +19,7 @@ function bootstrap(): void {
  * Register the block.
  */
 function register_block() {
-	register_block_type( HM_POST_TEMPLATE_TABLE_PLUGIN_DIR . 'build' );
+	register_block_type_from_metadata( trailingslashit( HM_POST_TEMPLATE_TABLE_PLUGIN_DIR ) . 'build' );
 }
 
 /**
