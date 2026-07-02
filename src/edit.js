@@ -4,8 +4,8 @@ import {
 	InspectorControls,
 	BlockContextProvider,
 	RichText,
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import {
 	PanelBody,
