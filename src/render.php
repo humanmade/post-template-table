@@ -87,7 +87,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 				$column_index = 0;
 
 				$filter_block_container = static function ( $block_content, $block, $block_instance ) use ( $columns, &$column_index ) {
-					if ( strpos( $block_content, '<td' ) !== 0 ) {
+					if ( strpos( ltrim( $block_content ), '<td' ) !== 0 ) {
 						$column = $columns[ $column_index ] ?? [];
 						$style_attr = get_column_width_style( $column );
 						++$column_index;
