@@ -10,20 +10,22 @@
  * @package hm-post-template-table
  */
 
+// phpcs:ignore HM.Files.NamespaceDirectoryName.NoIncDirectory
 namespace HM\PostTemplateTable;
 
+use WP_Block;
 use WP_Query;
 
 $show_header = isset( $attributes['showHeader'] ) ? $attributes['showHeader'] : true;
 $columns     = isset( $attributes['columns'] ) ? $attributes['columns'] : [];
 $class_name  = isset( $attributes['className'] ) ? $attributes['className'] : '';
 
-// Get the query context
+// Get the query context.
 $query_id = $block->context['queryId'] ?? 0;
 $query    = $block->context['query'] ?? [];
-$page     = empty( $_GET['query-' . $query_id . '-page'] ) ? 1 : (int) $_GET['query-' . $query_id . '-page'];
+$page     = empty( $_GET[ 'query-' . $query_id . '-page' ] ) ? 1 : (int) $_GET[ 'query-' . $query_id . '-page' ];
 
-// Build the query arguments
+// Build the query arguments.
 $query['paged'] = $page;
 
 if ( isset( $query['inherit'] ) && $query['inherit'] ) {
@@ -34,7 +36,6 @@ if ( isset( $query['inherit'] ) && $query['inherit'] ) {
 	$query_loop = new WP_Query( $query_args );
 }
 
-$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'wp-block-table' ] );
 $inner_blocks = $block->inner_blocks;
 
 // Get an instance of the current Post Template block.
@@ -50,7 +51,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 
 ?>
 
-<div <?php echo $wrapper_attributes; ?>>
+<div <?php echo get_block_wrapper_attributes( [ 'class' => 'wp-block-table' ] ); ?>>
 	<table class="wp-block-hm-post-template-table__table">
 		<?php if ( $show_header && ! empty( $columns ) ) : ?>
 			<thead>
@@ -60,9 +61,11 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 						$column = $columns[ $i ] ?? [];
 						$style_attr = get_column_width_style( $column );
 						?>
-						<th class="<?php echo get_column_classes( $inner_block ); ?>"<?php echo $style_attr; ?>><?php
+						<th class="<?php echo esc_attr( get_column_classes( $inner_block ) ); ?>" style="<?php echo esc_attr( $style_attr ); ?>">
+						<?php
 							echo esc_html( $column['label'] ?? $inner_block->block_type->title ?? '' );
-							?></th>
+						?>
+						</th>
 					<?php endforeach; ?>
 				</tr>
 			</thead>
@@ -87,12 +90,14 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 					if ( strpos( $block_content, '<td' ) !== 0 ) {
 						$column = $columns[ $column_index ] ?? [];
 						$style_attr = get_column_width_style( $column );
-						$column_index++;
+						++$column_index;
 						$column_label = $column['label'] ?? $block_instance->block_type->title ?? '';
 
 						if ( $style_attr ) {
-							return sprintf( '<td%s data-column="%s">%s</td>', $style_attr, esc_attr( $column_label ), $block_content );
+							// phpcs:ignore HM.Security.EscapeOutput.OutputNotEscaped -- Nested blocks are responsible for their own escaping.
+							return sprintf( '<td style="%s" data-column="%s">%s</td>', esc_attr( $style_attr ), esc_attr( $column_label ), $block_content );
 						}
+						// phpcs:ignore HM.Security.EscapeOutput.OutputNotEscaped
 						return sprintf( '<td data-column="%s">%s</td>', esc_attr( $column_label ), $block_content );
 					}
 					return $block_content;
@@ -106,10 +111,11 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 					<?php
 						// Render the inner blocks of the Post Template block with `dynamic` set to `false` to prevent calling
 						// `render_callback` and ensure that no wrapper markup is included.
-						echo ( new \WP_Block( $block_instance ) )->render( [ 'dynamic' => false ] );
+						// phpcs:ignore HM.Security.EscapeOutput.OutputNotEscaped -- Nested blocks are responsible for their own escaping.
+						echo ( new WP_Block( $block_instance ) )->render( [ 'dynamic' => false ] );
 					?>
 				</tr>
-			<?php
+				<?php
 				remove_filter( 'render_block_context', $filter_block_context, 1 );
 				remove_filter( 'render_block', $filter_block_container, 1 );
 				endwhile;

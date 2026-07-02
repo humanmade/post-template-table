@@ -1,39 +1,26 @@
 <?php
 /**
- * Plugin Name:       HM Post Template Table
- * Description:       A table-based alternative to the core/post-template block for displaying query results.
- * Version:           1.0.6
- * Requires at least: 6.0
- * Requires PHP:      7.4
- * Author:            Human Made
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       hm-post-template-table
- *
- * @package hm-post-template-table
+ * Main Post Template Table namespace.
  */
 
 namespace HM\PostTemplateTable;
 
 use WP_Block;
 
-// If this file is called directly, abort.
-if ( ! defined( 'ABSPATH' ) ) {
-	die;
+/**
+ * Connect namespace functions to hooks.
+ */
+function bootstrap(): void {
+	add_action( 'init', __NAMESPACE__ . '\\register_block' );
+	add_action( 'init', __NAMESPACE__ . '\\register_block_pattern' );
 }
-
-define( 'HM_POST_TEMPLATE_TABLE_VERSION', '1.0.5' );
-define( 'HM_POST_TEMPLATE_TABLE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'HM_POST_TEMPLATE_TABLE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
  * Register the block.
  */
 function register_block() {
-	register_block_type( HM_POST_TEMPLATE_TABLE_PLUGIN_DIR . 'build' );
+	register_block_type_from_metadata( trailingslashit( HM_POST_TEMPLATE_TABLE_PLUGIN_DIR ) . 'build' );
 }
-
-add_action( 'init', __NAMESPACE__ . '\\register_block' );
 
 /**
  * Register block pattern for query loop with post template table.
@@ -68,15 +55,13 @@ function register_block_pattern() {
 	);
 }
 
-add_action( 'init', __NAMESPACE__ . '\\register_block_pattern' );
-
 /**
  * Return CSS classes for the table column th tags.
  *
  * @param WP_Block $block The inner block for the column.
  * @return string
  */
-function get_column_classes( WP_Block $block ) : string {
+function get_column_classes( WP_Block $block ): string {
 	$classes = [ 'wp-block-hm-post-template-table__column' ];
 	$attributes = $block->parsed_block['attrs'];
 
@@ -94,12 +79,12 @@ function get_column_classes( WP_Block $block ) : string {
 }
 
 /**
- * Get column width styles.
+ * Render the style attribute for column width styles, or do nothing if no set widths.
  *
  * @param array $column Column configuration array.
  * @return string Style attribute string.
  */
-function get_column_width_style( $column ) {
+function get_column_width_style( $column ): string {
 	if ( empty( $column['width'] ) ) {
 		return '';
 	}
@@ -121,5 +106,9 @@ function get_column_width_style( $column ) {
 		}
 	}
 
-	return ! empty( $styles ) ? ' style="' . implode( '; ', $styles ) . '"' : '';
+	if ( empty( $styles ) ) {
+		return '';
+	}
+
+	return implode( '; ', $styles );
 }
