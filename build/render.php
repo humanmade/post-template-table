@@ -94,8 +94,10 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 						$column_label = $column['label'] ?? $block_instance->block_type->title ?? '';
 
 						if ( $style_attr ) {
+							// phpcs:ignore HM.Security.EscapeOutput.OutputNotEscaped -- Nested blocks are responsible for their own escaping.
 							return sprintf( '<td style="%s" data-column="%s">%s</td>', esc_attr( $style_attr ), esc_attr( $column_label ), $block_content );
 						}
+						// phpcs:ignore HM.Security.EscapeOutput.OutputNotEscaped
 						return sprintf( '<td data-column="%s">%s</td>', esc_attr( $column_label ), $block_content );
 					}
 					return $block_content;
@@ -109,6 +111,7 @@ $block_instance['innerContent'] = array_values( $block_instance['innerContent'] 
 					<?php
 						// Render the inner blocks of the Post Template block with `dynamic` set to `false` to prevent calling
 						// `render_callback` and ensure that no wrapper markup is included.
+						// phpcs:ignore HM.Security.EscapeOutput.OutputNotEscaped -- Nested blocks are responsible for their own escaping.
 						echo ( new WP_Block( $block_instance ) )->render( [ 'dynamic' => false ] );
 					?>
 				</tr>
