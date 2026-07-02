@@ -28,7 +28,7 @@ $page     = empty( $_GET[ 'query-' . $query_id . '-page' ] ) ? 1 : (int) $_GET[ 
 // Build the query arguments.
 $query['paged'] = $page;
 
-if ( isset( $query['inherit'] ) && $query['inherit'] ) {
+if ( isset( $query['inherit'] ) && $query['inherit'] && ! in_the_loop() ) {
 	global $wp_query;
 	$query_loop = $wp_query;
 } else {
