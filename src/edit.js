@@ -12,6 +12,7 @@ import {
 	ToggleControl,
 	Spinner,
 	Button,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
