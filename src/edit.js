@@ -414,7 +414,11 @@ export default function Edit( {
 											{ ( posts || [] )
 												.slice( 1 )
 												.map( ( post ) => (
-													<li>
+													<li
+														key={
+															post.title.rendered
+														}
+													>
 														{ post.title.rendered }
 													</li>
 												) ) }
