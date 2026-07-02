@@ -4,14 +4,15 @@ import {
 	InspectorControls,
 	BlockContextProvider,
 	RichText,
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import {
 	PanelBody,
 	ToggleControl,
 	Spinner,
 	Button,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -27,14 +28,19 @@ const FIXED_UNITS = [ 'px', 'em', 'rem' ];
 /**
  * Edit component for the hm-post-template-table block.
  *
- * @param {object}   props               - Component props.
- * @param {object}   props.attributes    - Block attributes.
+ * @param {Object}   props               - Component props.
+ * @param {Object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to update block attributes.
  * @param {string}   props.clientId      - Block client ID.
- * @param {object}   props.context       - Block context.
- * @returns {Element} The edit interface for the block.
+ * @param {Object}   props.context       - Block context.
+ * @return {Element} The edit interface for the block.
  */
-export default function Edit( { attributes, setAttributes, clientId, context } ) {
+export default function Edit( {
+	attributes,
+	setAttributes,
+	clientId,
+	context,
+} ) {
 	const { columns, showHeader } = attributes;
 
 	const blockProps = useBlockProps( {
@@ -42,7 +48,7 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 	} );
 
 	const { innerBlocks, posts, isResolving, units } = useSelect(
-		select => {
+		( select ) => {
 			const { getBlocks, getSettings } = select( blockEditorStore );
 			const { getEntityRecords } = select( coreStore );
 			const query = context?.query || {};
@@ -60,15 +66,25 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 					per_page: perPage,
 					...query,
 				} ),
-				isResolving: ! select( coreStore ).hasFinishedResolution( 'getEntityRecords', [
-					'postType',
-					postType,
-					{
-						per_page: perPage,
-						...query,
-					},
-				] ),
-				units: settings?.__experimentalFeatures?.spacing?.units || [ 'px', 'em', 'rem', 'vh', 'vw', '%' ],
+				isResolving: ! select( coreStore ).hasFinishedResolution(
+					'getEntityRecords',
+					[
+						'postType',
+						postType,
+						{
+							per_page: perPage,
+							...query,
+						},
+					]
+				),
+				units: settings?.__experimentalFeatures?.spacing?.units || [
+					'px',
+					'em',
+					'rem',
+					'vh',
+					'vw',
+					'%',
+				],
 			};
 		},
 		[ clientId, context ]
@@ -80,25 +96,30 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 	 * @param {string} blockClientId - The clientId of the block.
 	 * @param {string} newLabel      - The new label.
 	 */
-	const updateColumnLabel = useCallback( ( blockClientId, newLabel ) => {
-		const newColumns = columns.map( col => {
-			if ( col.clientId === blockClientId ) {
-				col.label = newLabel;
-			}
-			return col;
-		} );
-		setAttributes( { columns: newColumns } );
-	}, [ columns, setAttributes ] );
+	const updateColumnLabel = useCallback(
+		( blockClientId, newLabel ) => {
+			const newColumns = columns.map( ( col ) => {
+				if ( col.clientId === blockClientId ) {
+					col.label = newLabel;
+				}
+				return col;
+			} );
+			setAttributes( { columns: newColumns } );
+		},
+		[ columns, setAttributes ]
+	);
 
 	useEffect( () => {
 		const newColumns = innerBlocks.map( ( block, index ) => {
 			const column =
-				columns.find( col => col.clientId === block.clientId ) ||
-				columns.find( col => col.index === index );
+				columns.find( ( col ) => col.clientId === block.clientId ) ||
+				columns.find( ( col ) => col.index === index );
 			return {
 				clientId: block.clientId,
 				index,
-				label: column ? column?.label : getBlockType( block.name ).title,
+				label: column
+					? column?.label
+					: getBlockType( block.name ).title,
 				// Preserve width properties from existing column
 				width: column?.width,
 				unit: column?.unit,
@@ -126,74 +147,138 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Table Settings', 'hm-post-template-table' ) }>
+				<PanelBody
+					title={ __( 'Table Settings', 'hm-post-template-table' ) }
+				>
 					<ToggleControl
 						checked={ showHeader }
-						label={ __( 'Show Header Row', 'hm-post-template-table' ) }
-						onChange={ value => setAttributes( { showHeader: value } ) }
+						label={ __(
+							'Show Header Row',
+							'hm-post-template-table'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { showHeader: value } )
+						}
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Column Widths', 'hm-post-template-table' ) } initialOpen={ false }>
+				<PanelBody
+					title={ __( 'Column Widths', 'hm-post-template-table' ) }
+					initialOpen={ false }
+				>
 					{ innerBlocks.map( ( innerBlock, index ) => {
-						const column = columns.find( col => col.clientId === innerBlock.clientId );
-						const columnLabel = column?.label || getBlockType( innerBlock.name )?.title || `Column ${ index + 1 }`;
+						const column = columns.find(
+							( col ) => col.clientId === innerBlock.clientId
+						);
+						const columnLabel =
+							column?.label ||
+							getBlockType( innerBlock.name )?.title ||
+							`Column ${ index + 1 }`;
 						const currentUnit = column?.unit || '%';
 						const isFixedUnit = FIXED_UNITS.includes( currentUnit );
 
 						return (
-							<div key={ innerBlock.clientId } style={ { marginBottom: '1rem' } }>
-								<div style={ { marginBottom: '0.5rem', fontWeight: 500 } }>
+							<div
+								key={ innerBlock.clientId }
+								style={ { marginBottom: '1rem' } }
+							>
+								<div
+									style={ {
+										marginBottom: '0.5rem',
+										fontWeight: 500,
+									} }
+								>
 									{ columnLabel }
 								</div>
 								<UnitControl
-									label={ __( 'Width', 'hm-post-template-table' ) }
+									label={ __(
+										'Width',
+										'hm-post-template-table'
+									) }
 									value={ column?.width || '' }
-									units={ units.map( unit => ( { value: unit, label: unit } ) ) }
-									onChange={ value => {
+									units={ units.map( ( unit ) => ( {
+										value: unit,
+										label: unit,
+									} ) ) }
+									onChange={ ( value ) => {
 										const parsedValue = parseFloat( value );
-										const unit = value ? value.replace( parsedValue.toString(), '' ) : '%';
+										const unit = value
+											? value.replace(
+													parsedValue.toString(),
+													''
+											  )
+											: '%';
 
-										const newColumns = columns.map( col => {
-											if ( col.clientId === innerBlock.clientId ) {
-												const updatedCol = {
-													...col,
-													width: value,
-													unit,
-												};
-												// If switching to a fixed unit, clear min-width
-												if ( FIXED_UNITS.includes( unit ) ) {
-													delete updatedCol.minWidth;
-													delete updatedCol.minUnit;
+										const newColumns = columns.map(
+											( col ) => {
+												if (
+													col.clientId ===
+													innerBlock.clientId
+												) {
+													const updatedCol = {
+														...col,
+														width: value,
+														unit,
+													};
+													// If switching to a fixed unit, clear min-width
+													if (
+														FIXED_UNITS.includes(
+															unit
+														)
+													) {
+														delete updatedCol.minWidth;
+														delete updatedCol.minUnit;
+													}
+													return updatedCol;
 												}
-												return updatedCol;
+												return col;
 											}
-											return col;
-										} );
+										);
 
-										setAttributes( { columns: newColumns } );
+										setAttributes( {
+											columns: newColumns,
+										} );
 									} }
 								/>
 								{ ! isFixedUnit && column?.width && (
 									<UnitControl
-										label={ __( 'Minimum Width', 'hm-post-template-table' ) }
+										label={ __(
+											'Minimum Width',
+											'hm-post-template-table'
+										) }
 										value={ column?.minWidth || '' }
-										units={ units.map( unit => ( { value: unit, label: unit } ) ) }
-										onChange={ value => {
-											const parsedValue = parseFloat( value );
-											const unit = value ? value.replace( parsedValue.toString(), '' ) : 'px';
+										units={ units.map( ( unit ) => ( {
+											value: unit,
+											label: unit,
+										} ) ) }
+										onChange={ ( value ) => {
+											const parsedValue =
+												parseFloat( value );
+											const unit = value
+												? value.replace(
+														parsedValue.toString(),
+														''
+												  )
+												: 'px';
 
-											const newColumns = columns.map( col => {
-												if ( col.clientId === innerBlock.clientId ) {
-													return {
-														...col,
-														minWidth: value,
-														minUnit: unit,
-													};
+											const newColumns = columns.map(
+												( col ) => {
+													if (
+														col.clientId ===
+														innerBlock.clientId
+													) {
+														return {
+															...col,
+															minWidth: value,
+															minUnit: unit,
+														};
+													}
+													return col;
 												}
-												return col;
-											} );
+											);
 
-											setAttributes( { columns: newColumns } );
+											setAttributes( {
+												columns: newColumns,
+											} );
 										} }
 									/>
 								) }
@@ -203,22 +288,34 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 										size="small"
 										variant="secondary"
 										onClick={ () => {
-											const newColumns = columns.map( col => {
-												if ( col.clientId === innerBlock.clientId ) {
-													const updatedCol = { ...col };
-													delete updatedCol.width;
-													delete updatedCol.unit;
-													delete updatedCol.minWidth;
-													delete updatedCol.minUnit;
-													return updatedCol;
+											const newColumns = columns.map(
+												( col ) => {
+													if (
+														col.clientId ===
+														innerBlock.clientId
+													) {
+														const updatedCol = {
+															...col,
+														};
+														delete updatedCol.width;
+														delete updatedCol.unit;
+														delete updatedCol.minWidth;
+														delete updatedCol.minUnit;
+														return updatedCol;
+													}
+													return col;
 												}
-												return col;
+											);
+											setAttributes( {
+												columns: newColumns,
 											} );
-											setAttributes( { columns: newColumns } );
 										} }
 										style={ { marginTop: '0.5rem' } }
 									>
-										{ __( 'Reset Width', 'hm-post-template-table' ) }
+										{ __(
+											'Reset Width',
+											'hm-post-template-table'
+										) }
 									</Button>
 								) }
 							</div>
@@ -239,10 +336,23 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 							<thead>
 								<tr>
 									{ innerBlocks.map( ( innerBlock ) => {
-										const align = innerBlock.attributes?.textAlign || innerBlock.attributes?.align || 'left';
-										const column = columns.find( col => col.clientId === innerBlock.clientId );
-										const columnLabel = column ? column.label : ( getBlockType( innerBlock.name )?.title || '' );
-										const isFixedUnit = FIXED_UNITS.includes( column?.unit );
+										const align =
+											innerBlock.attributes?.textAlign ||
+											innerBlock.attributes?.align ||
+											'left';
+										const column = columns.find(
+											( col ) =>
+												col.clientId ===
+												innerBlock.clientId
+										);
+										const columnLabel = column
+											? column.label
+											: getBlockType( innerBlock.name )
+													?.title || '';
+										const isFixedUnit =
+											FIXED_UNITS.includes(
+												column?.unit
+											);
 
 										const style = {};
 										if ( column?.width ) {
@@ -252,7 +362,8 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 											} else {
 												style.width = column.width;
 												if ( column.minWidth ) {
-													style.minWidth = column.minWidth;
+													style.minWidth =
+														column.minWidth;
 												}
 											}
 										}
@@ -260,14 +371,22 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 										return (
 											<th
 												key={ innerBlock.clientId }
-												className={ `wp-block-hm-post-template-table__column wp-block-hm-post-template-table__column--${ innerBlock.name.replace( '/', '-' ) } has-text-align-${ align }` }
+												className={ `wp-block-hm-post-template-table__column wp-block-hm-post-template-table__column--${ innerBlock.name.replace(
+													'/',
+													'-'
+												) } has-text-align-${ align }` }
 												style={ style }
 											>
 												<RichText
 													placeholder="&hellip;"
 													tagName="span"
 													value={ columnLabel }
-													onChange={ value => updateColumnLabel( innerBlock.clientId, value ) }
+													onChange={ ( value ) =>
+														updateColumnLabel(
+															innerBlock.clientId,
+															value
+														)
+													}
 												/>
 											</th>
 										);
@@ -279,8 +398,8 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 							{ /* First row with editable InnerBlocks displayed horizontally */ }
 							<BlockContextProvider
 								value={ {
-									postId: posts[0]?.id,
-									postType: posts[0]?.type,
+									postId: posts[ 0 ]?.id,
+									postType: posts[ 0 ]?.type,
 								} }
 							>
 								<tr { ...innerBlocksProps } />
@@ -288,18 +407,35 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 							{ posts && posts.length > 1 && (
 								<tr>
 									<td colSpan={ innerBlocks.length }>
-										{ __( 'The full table will be shown when previewing, the remaining posts to be shown are:', 'hm-post-template-table' ) }
+										{ __(
+											'The full table will be shown when previewing, the remaining posts to be shown are:',
+											'hm-post-template-table'
+										) }
 										<ul>
-											{ ( posts || [] ).slice( 1 ).map( post => (
-												<li>{ post.title.rendered }</li>
-											) ) }
+											{ ( posts || [] )
+												.slice( 1 )
+												.map( ( post ) => (
+													<li
+														key={
+															post.title.rendered
+														}
+													>
+														{ post.title.rendered }
+													</li>
+												) ) }
 										</ul>
 									</td>
 								</tr>
 							) }
 							{ innerBlocks.length === 0 && (
-								<td className="hm-post-template-table__placeholder" colSpan={ columns.length }>
-									{ __( 'Add post blocks to create table columns', 'hm-post-template-table' ) }
+								<td
+									className="hm-post-template-table__placeholder"
+									colSpan={ columns.length }
+								>
+									{ __(
+										'Add post blocks to create table columns',
+										'hm-post-template-table'
+									) }
 								</td>
 							) }
 						</tbody>
@@ -313,9 +449,10 @@ export default function Edit( { attributes, setAttributes, clientId, context } )
 /**
  * Filter to wrap inner blocks with td elements when parent is our table block.
  */
-const withTableCellWrapper = createHigherOrderComponent( BlockListBlock => {
-	return props => {
-		const { getBlockRootClientId, getBlock } = useSelect( blockEditorStore );
+const withTableCellWrapper = createHigherOrderComponent( ( BlockListBlock ) => {
+	return ( props ) => {
+		const { getBlockRootClientId, getBlock } =
+			useSelect( blockEditorStore );
 		const parentClientId = getBlockRootClientId( props.clientId );
 		const parentBlock = parentClientId ? getBlock( parentClientId ) : null;
 
