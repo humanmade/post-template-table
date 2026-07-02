@@ -77,6 +77,26 @@ Command | Purpose
 
 <sup>&ddagger;</sup> This command deliberately filters out GET/OPTIONS/HEAD/POST/PUT access log entries
 
+## Release Process
+
+Merges to `main` automatically [build](https://github.com/humanmade/post-template-table/actions/workflows/build-release-branch.yml) to the `release` branch. A project may track the `release` branch using [Composer](https://getcomposer.org/) to pull in the latest built beta version.
+
+Commits on the `release` branch may be tagged for installation via [Packagist](https://packagist.org/packages/humanmade/post-template-table) and marked as releases in GitHub for manual download, using a manually-dispatched ["Tag and Release" GH Actions workflow](https://github.com/humanmade/post-template-table/actions/workflows/tag-and-release.yml).
+
+To tag a new release:
+
+1. Choose the target version number using [semantic versioning](https://semver.org/).
+2. Check out a `prepare-v#.#.#` branch and bump the `Version` in the [post-template-table.php](./post-template-table.php) PHPDoc header.
+3. Open a pull request titled "Prepare release v#.#.#".
+4. Review and merge the "Prepare release" pull request.
+5. Wait for the `release` branch to [update](https://github.com/humanmade/post-template-table/actions/workflows/build-release-branch.yml) with the build that includes the new version number.
+6. On the ["Tag and Release" GH Action page](https://github.com/humanmade/post-template-table/actions/workflows/tag-and-release.yml):
+   - Click "Run workflow" in the `workflow_dispatch` banner.
+   - Fill out the "Version tag" field with your target version number. This must match the `Version` in `post-template-table.php`. Use the format `v#.#.#`.
+   - Click "Run workflow" to apply the specified tag to the `release` branch.
+
+Once the workflow completes, the new version is [tagged](https://github.com/humanmade/post-template-table/tags) and listed in [releases](https://github.com/humanmade/post-template-table/releases).
+
 ## License
 
 GPL-2.0-or-later
